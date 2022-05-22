@@ -7,7 +7,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Throwable;
-use MyApp\ReqDataService;
 use App\Entity\Users;
 use App\Entity\Articles;
 use Doctrine\Persistence\ManagerRegistry;

@@ -6,15 +6,11 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
-use Throwable;
 use MyApp\ReqDataService;
 use App\Entity\Users;
-use App\Entity\Articles;
 use Doctrine\Persistence\ManagerRegistry;
 use DateTime;
 use Firebase\JWT\JWT;
-use Firebase\JWT\Key;
-use MyApp\ServiceJWT;
 
 class BlogController extends AbstractController
 {
