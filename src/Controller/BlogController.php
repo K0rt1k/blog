@@ -12,7 +12,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use DateTime;
 use Firebase\JWT\JWT;
 
-class BlogController extends AbstractController
+class UserController extends AbstractController
 {
     #[Route('/api/user/registration', name: 'api_user_registration', methods: ['POST'])]
     public function user_registration(Request $request, ManagerRegistry $doctrine): Response
