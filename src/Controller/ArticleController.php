@@ -18,7 +18,7 @@ use MyApp\ServiceJWT;
 class ArticleController extends AbstractController
 {
     #[Route('/api/article/add', name: 'api_article_add', methods: ['POST'])]
-    public function article_add(Request $request, ManagerRegistry $doctrine): Response
+    public function articleAdd(Request $request, ManagerRegistry $doctrine): Response
     {   
         $serviceJWT = new ServiceJWT($request);
         $serviceJWT->checkJWT();
@@ -55,7 +55,7 @@ class ArticleController extends AbstractController
     }
 
     #[Route('/api/article/edit', name: 'api_article_edit', methods: ['PUT'])]
-    public function article_edit(Request $request, ManagerRegistry $doctrine): Response
+    public function articleEdit(Request $request, ManagerRegistry $doctrine): Response
     {
         $serviceJWT = new ServiceJWT($request);
         $serviceJWT->checkJWT();
@@ -87,7 +87,7 @@ class ArticleController extends AbstractController
     }
 
     #[Route('/api/article/delete', name: 'api_article_delete', methods: ['DELETE'])]
-    public function article_delete(Request $request, ManagerRegistry $doctrine): Response
+    public function articleDelete(Request $request, ManagerRegistry $doctrine): Response
     {
         $serviceJWT = new ServiceJWT($request);
         $serviceJWT->checkJWT();

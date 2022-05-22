@@ -12,10 +12,10 @@ use Doctrine\Persistence\ManagerRegistry;
 use DateTime;
 use Firebase\JWT\JWT;
 
-class UserController extends AbstractController
+class UsersController extends AbstractController
 {
     #[Route('/api/user/registration', name: 'api_user_registration', methods: ['POST'])]
-    public function user_registration(Request $request, ManagerRegistry $doctrine): Response
+    public function userRegistration(Request $request, ManagerRegistry $doctrine): Response
     {   
         $data = new ReqDataService($request);
         $reqUserLogin = $data->getReqUserLogin();
@@ -46,7 +46,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/api/user/authorization', name: 'api_user_authorization', methods: ['POST'])]
-    public function user_authorization(Request $request, ManagerRegistry $doctrine): Response
+    public function userAuthorization(Request $request, ManagerRegistry $doctrine): Response
     {   
         $data = new ReqDataService($request);
         $reqLogin = $data->getReqUserLogin();
@@ -80,7 +80,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/api/user/edit', name: 'api_user_edit', methods: ['PUT'])]
-    public function user_edit(Request $request, ManagerRegistry $doctrine): Response
+    public function userEdit(Request $request, ManagerRegistry $doctrine): Response
     {   
         $data = new ReqDataService($request);
         $reqUserLogin = $data->getReqUserLogin();
@@ -106,7 +106,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/api/user/delete', name: 'api_user_delete', methods: ['DELETE'])]
-    public function user_delete(Request $request, ManagerRegistry $doctrine): Response
+    public function userDelete(Request $request, ManagerRegistry $doctrine): Response
     {   
         $entityManager = $doctrine->getManager();
         $repository = $doctrine->getRepository(Users::class);
