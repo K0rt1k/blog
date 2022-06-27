@@ -37,11 +37,12 @@ class ServiceJWT
         }
     }
 
-    public function getLogin(): string
+    public function getLogin(): string | false
     {
-        if($this->decoded->userLogin){
+        if($this->decoded){
             return $this->decoded->userLogin;
         }
+        return false;
     }
 
     public function getErrors(): string

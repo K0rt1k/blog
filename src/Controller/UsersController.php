@@ -11,16 +11,59 @@ use App\Entity\Users;
 use Doctrine\Persistence\ManagerRegistry;
 use DateTime;
 use Firebase\JWT\JWT;
+use Throwable;
 
 class UsersController extends AbstractController
 {
+    #[Route('/api/user/registration', name: 'api_user_registration_options', methods: ['OPTIONS'])]
+    public function userRegistrationOptions(Request $request): Response
+    {
+        $response = new Response(
+            '',
+            Response::HTTP_OK,
+            [
+                'content-type' => 'text/html, application/json',
+                'Access-Control-Allow-Origin' => 'http://localhost:4200',
+                'Access-Control-Allow-Methods' => 'POST, GET, OPTIONS',
+                'Access-Control-Allow-Headers' => 'Content-Type',
+                // 'Access-Control-Max-Age' => '86400' X-PINGOTHER,
+            ]
+        );
+
+        return $response;
+    }
+    
     #[Route('/api/user/registration', name: 'api_user_registration', methods: ['POST'])]
     public function userRegistration(Request $request, ManagerRegistry $doctrine): Response
     {   
         $data = new ReqDataService($request);
         $reqUserLogin = $data->getReqUserLogin();
         $repository = $doctrine->getRepository(Users::class);
-        $users = $repository->findOneBy(['login' => "$reqUserLogin"]);
+        try
+        {
+            $users = $repository->findOneBy(['login' => "$reqUserLogin"]);
+        }
+        catch(Throwable $ex)
+        {
+            // echo 'Database error, please try later!';
+            // return $this->json(['error' => 'Database not response, try later!'],
+            //     $status = 404, 
+            //     $headers = ['Access-Control-Allow-Origin' => 'http://localhost:4200'], 
+            //     $context = []);
+
+            $response = new Response(
+                '',
+                Response::HTTP_SERVICE_UNAVAILABLE,
+                [
+                    'content-type' => 'text/html',
+                    'Access-Control-Allow-Origin' => 'http://localhost:4200',
+                    'Access-Control-Allow-Methods' => 'POST, GET, OPTIONS',
+                    'Access-Control-Allow-Headers' => 'Content-Type',
+                ]
+            );
+    
+            return $response;
+        }
         $entityManager = $doctrine->getManager();
 
         if (!$users){
@@ -37,12 +80,34 @@ class UsersController extends AbstractController
             $entityManager->flush();
             $userId = $users->getId();
             $userLogin = $users->getLogin();
-            return $this->json([
-                'Hello' => "User ID: $userId",
-                'User Login:' => "$userLogin Registration complete!"
-            ]);
+            $respArrUser = [
+                'hello' => "User ID: $userId",
+                'userLogin' => "$userLogin Registration complete!"
+            ];
+            
+            return $this->json($respArrUser, $status = 200,
+                $headers = ['Access-Control-Allow-Origin' => 'http://localhost:4200'],
+                $context = []);
         }
-        return $this->json(['Error' => "Name {$reqUserLogin} is alredy use! "]);
+        $respArray = ['error' => "Name {$reqUserLogin} is alredy use! "];
+        return $this->json($respArray, $status = 200, $headers = ['Access-Control-Allow-Origin' => 'http://localhost:4200'], $context = []);
+    }
+
+    #[Route('/api/user/authorization', name: 'api_user_authorization_options', methods: ['OPTIONS'])]
+    public function userAuthorizationOptions(Request $request, ManagerRegistry $doctrine): Response
+    {
+        $response = new Response(
+            '',
+            Response::HTTP_OK,
+            [
+                'content-type' => 'text/html, application/json',
+                'Access-Control-Allow-Origin' => 'http://localhost:4200',
+                'Access-Control-Allow-Methods' => 'POST, GET, OPTIONS',
+                'Access-Control-Allow-Headers' => 'Content-Type',
+            ]
+        );
+
+        return $response;
     }
 
     #[Route('/api/user/authorization', name: 'api_user_authorization', methods: ['POST'])]
@@ -71,12 +136,25 @@ class UsersController extends AbstractController
                 ];
                 
                 $jwt = JWT::encode($dataJWT, $secretKey, 'HS256');
-                return $this->json(['Hello ' => "{$reqLogin} authorization OK!",
-                                    'Your jwt ' => "$jwt"
-                                    ]);
+                // return $this->json(['hello' => "{$reqLogin} authorization OK!",
+                //                     'jwt' => "$jwt"
+                //                     ]);
+                return $this->json(
+                    [
+                        'hello' => "{$reqLogin} authorization OK!",
+                        'jwt' => "$jwt",
+                        'exp' => $expirationTime
+                    ],
+                    $status = 200, 
+                    $headers = ['Access-Control-Allow-Origin' => 'http://localhost:4200'], 
+                    $context = []);
             }
         }
-        return $this->json(['Error' => " {$reqLogin} wrong login or password!"]);
+        // return $this->json(['error' => " {$reqLogin} wrong login or password!"]);
+        return $this->json(['error' => " {$reqLogin} wrong login or password!"],
+                                    $status = 200, 
+                                    $headers = ['Access-Control-Allow-Origin' => 'http://localhost:4200'], 
+                                    $context = []);
     }
 
     #[Route('/api/user/edit', name: 'api_user_edit', methods: ['PUT'])]

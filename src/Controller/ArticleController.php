@@ -17,6 +17,25 @@ use MyApp\ServiceJWT;
 
 class ArticleController extends AbstractController
 {
+
+    #[Route('/api/article/add', name: 'api_article_add_options', methods: ['OPTIONS'])]
+    public function articleAddOptions(Request $request): Response
+    {
+        $response = new Response(
+            '',
+            Response::HTTP_OK,
+            [
+                'content-type' => 'text/html, application/json',
+                'Access-Control-Allow-Origin' => 'http://localhost:4200',
+                'Access-Control-Allow-Methods' => 'POST, GET, OPTIONS',
+                'Access-Control-Allow-Headers' => 'Content-Type, Authorization'
+                // 'Access-Control-Max-Age' => '86400' X-PINGOTHER,
+            ]
+        );
+
+        return $response;
+    }
+
     #[Route('/api/article/add', name: 'api_article_add', methods: ['POST'])]
     public function articleAdd(Request $request, ManagerRegistry $doctrine): Response
     {   
@@ -33,25 +52,46 @@ class ArticleController extends AbstractController
             $reqText = $reqArticle['text'];
             $users = $repository->findOneBy(['login' => "$userLogin"]);
             $dbarticle = $articleRepository->findOneBy(['title' => "$reqTitle"]);
+
+            if($users && $reqArticle && !$dbarticle){
+                $articles = new Articles;
+                $articles->setTitle($reqTitle)
+                        ->setText($reqText)
+                        ->setDateCreate(new DateTime())
+                        ->setDateChange(new DateTime())
+                        ->setFkUsers($users);
+    
+                $entityManager->persist($articles);
+                $entityManager->flush();
+    
+                // return new Response(
+                //     'To user with id: '.$users->getId()
+                //     .' added new article with id: '.$articles->getId()
+                // );
+                return $this->json(
+                    [
+                        'hello' => "$userLogin", 
+                        'article' => "$reqTitle", 
+                        'added' => 'successful'
+                    ],
+                    $status = 200, 
+                    $headers = [
+                        'Access-Control-Allow-Origin' => 'http://localhost:4200',
+                        'Access-Control-Allow-Headers' => 'Content-Type, Authorization'
+                    ], 
+                    $context = []
+                );
+            }
+
         }
         
-        if($users && $reqArticle && !$dbarticle){
-            $articles = new Articles;
-            $articles->setTitle($reqTitle)
-                    ->setText($reqText)
-                    ->setDateCreate(new DateTime())
-                    ->setDateChange(new DateTime())
-                    ->setFkUsers($users);
-
-            $entityManager->persist($articles);
-            $entityManager->flush();
-
-            return new Response(
-                'To user with id: '.$users->getId()
-                .' added new article with id: '.$articles->getId()
-            );
-        }
-        return $this->json(['Error' => 'article don\'t save!']);
+        // return $this->json(['error' => 'article don\'t save!']);
+        return $this->json(
+            ['error' => 'article don\'t save!'],
+            $status = 200, 
+            $headers = ['Access-Control-Allow-Origin' => 'http://localhost:4200'], 
+            $context = []
+        );
     }
 
     #[Route('/api/article/edit', name: 'api_article_edit', methods: ['PUT'])]
